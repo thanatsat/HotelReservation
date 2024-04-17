@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "696276607475",
+    "project_id": "rorich-f15d5",
+    "storage_bucket": "rorich-f15d5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:696276607475:android:a1fab5afa46e8413ffb286",
+        "android_client_info": {
+          "package_name": "com.example.test"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2gVw3fkanxvnfw5QgA4NZiyTCjX2Clug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
