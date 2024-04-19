@@ -49,14 +49,39 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 forgetPassword(context),
                 firebaseUIButton(context, "Sign In", () {
+                  String email = _emailTextController.text.trim();
+                  String password = _passwordTextController.text.trim();
+
+                  // Validate email format
+                  if (!isValidEmail(email)) {
+                    showErrorDialog(context, "Invalid Email");
+                    return;
+                  }
+
+                  // Validate password format
+                  if (password.isEmpty) {
+                    showErrorDialog(context, "Password cannot be empty");
+                    return;
+                  }
+
+                  // Attempt sign-in with Firebase
                   FirebaseAuth.instance
                       .signInWithEmailAndPassword(
-                          email: _emailTextController.text,
-                          password: _passwordTextController.text)
+                    email: email,
+                    password: password,
+                  )
                       .then((value) {
                     Navigator.pushNamed(context, '/root');
-                  }).onError((error, stackTrace) {
-                    print("Error ${error.toString()}");
+                  }).catchError((error) {
+                    // Handle sign-in errors
+                    String errorMessage =
+                        "An error occurred. Please try email or password again.";
+                    if (error.code == 'user-not-found') {
+                      errorMessage = "User not found. Please check your email.";
+                    } else if (error.code == 'wrong-password') {
+                      errorMessage = "Incorrect password. Please try again.";
+                    }
+                    showErrorDialog(context, errorMessage);
                   });
                 }),
                 signUpOption()
@@ -102,6 +127,32 @@ class _SignInScreenState extends State<SignInScreen> {
         onPressed: () => Navigator.push(
             context, MaterialPageRoute(builder: (context) => ResetPassword())),
       ),
+    );
+  }
+
+  bool isValidEmail(String email) {
+    String emailRegex =
+        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'; // Regex for email validation
+    return RegExp(emailRegex).hasMatch(email);
+  }
+
+  void showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Error"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
     );
   }
 }
