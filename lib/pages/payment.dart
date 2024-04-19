@@ -21,11 +21,38 @@ class _PaymentSettingsState extends State<PaymentSettings> {
   bool _isLicensePlateValid = true;
 
   Future<void> saveBookingData(BuildContext context) async {
-    if (!_isContactNumberValid || !_isLicensePlateValid) {
-      return; // Don't proceed if any field is invalid
+    // Check each field for emptiness or invalidity
+    if (selectedIndex == -1 ||
+        !_isContactNumberValid ||
+        !_isLicensePlateValid ||
+        firstNameController.text.isEmpty ||
+        lastNameController.text.isEmpty ||
+        nicknameController.text.isEmpty) {
+      // Show error message if any field is empty, invalid, or if payment method is not selected
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text(selectedIndex == -1
+                ? 'Please select a payment method'
+                : 'Please fill out all fields correctly'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
     }
 
     try {
+      // Save booking data to Firestore
       await FirebaseFirestore.instance.collection('booking').add({
         'firstName': firstNameController.text,
         'lastName': lastNameController.text,
@@ -85,10 +112,6 @@ class _PaymentSettingsState extends State<PaymentSettings> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Icon(Icons.menu, color: Colors.black),
                   ),
                 ),
               ),
@@ -271,12 +294,12 @@ class _PaymentSettingsState extends State<PaymentSettings> {
   }
 
   bool _validateContactNumber(String value) {
-    // Validate contact number (e.g., must not be empty)
-    return value.isNotEmpty;
+    // Validate contact number (e.g., must not be empty and only contain numeric characters)
+    return value.isNotEmpty && int.tryParse(value) != null;
   }
 
   bool _validateLicensePlate(String value) {
-    // Validate license plate (e.g., must not be empty)
-    return value.isNotEmpty;
+    // Validate license plate (e.g., must not be empty and only contain numeric characters)
+    return value.isNotEmpty && int.tryParse(value) != null;
   }
 }
